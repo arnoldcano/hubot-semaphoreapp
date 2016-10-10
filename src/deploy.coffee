@@ -39,6 +39,8 @@ module.exports = (robot) ->
   robot.respond /deploy (.*)/, (msg) =>
     unless process.env.HUBOT_SEMAPHOREAPP_AUTH_TOKEN?
       return msg.reply "I need HUBOT_SEMAPHOREAPP_AUTH_TOKEN for this to work."
+    unless robot.auth.hasRole(msg.envelope.user, 'deploy')
+      return msg.reply "Access denied."
 
     command = msg.match[1]
     aSlashBToC = command.match /(.*?)\/(.*)\s+to\s+(.*)/ # project/branch to server
