@@ -61,7 +61,7 @@ module.exports = (robot) ->
       when aByBToC? then [aByBToC[1], default_branch, aByBToC[2], aByBToC[3]]
       when aToB? then [aToB[1], default_branch, default_builds, aToB[2]]
       when aSlashBByC? then [aSlashBByC[1], aSlashBByC[2], aSlashBByC[3], default_server]
-      when aSlashB? then [aSlashB[1], aSlashB[2], default_server]
+      when aSlashB? then [aSlashB[1], aSlashB[2], default_builds, default_server]
       else [command, default_branch, default_builds, default_server]
 
     robot.logger.debug "SEMAPHOREAPP deploy #{project}/#{branch} to #{server}"
