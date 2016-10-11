@@ -1,6 +1,6 @@
 {
   "name": "hubot-semaphoreapp",
-  "version": "0.1.3",
+  "version": "0.0.1",
   "description": "Hubot integration with Semaphore (semaphoreapp.com)",
   "main": "index.coffee",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ben/hubot-semaphoreapp"
+    "url": "https://github.com/arnoldcano/hubot-semaphoreapp"
   },
   "keywords": [
     "hubot",
@@ -16,14 +16,14 @@
     "semaphoreapp"
   ],
   "author": {
-    "name": "Ben Straub",
-    "email": "ben@straub.cc"
+    "name": "Arnold Cano",
+    "email": "arnoldcano@yahoo.com"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ben/hubot-semaphoreapp/issues"
+    "url": "https://github.com/arnoldcano/hubot-semaphoreapp/issues"
   },
-  "homepage": "https://github.com/ben/hubot-semaphoreapp",
+  "homepage": "https://github.com/arnoldcano/hubot-semaphoreapp",
   "devDependencies": {
     "chai": "^1.10.0",
     "hubot": "^2.9.3",
