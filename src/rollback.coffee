@@ -55,7 +55,7 @@ module.exports = (robot) ->
     aSlashBByC = command.match /(.*?)\/(.*)\s+by\s+(\d)/ # project/branch by builds
     aSlashB = command.match /(.*?)\/(.*)/ # project/branch
 
-    [project, branch, server] = switch
+    [project, branch, builds, server] = switch
       when aSlashBByCToD? then aSlashBByCToD[1..4]
       when aSlashBToC? then [aSlashBToC[1], aSlashBToC[2], default_builds, aSlashBToC[3]]
       when aByBToC? then [aByBToC[1], default_branch, aByBToC[2], aByBToC[3]]
