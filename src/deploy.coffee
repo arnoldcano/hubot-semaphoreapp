@@ -17,6 +17,9 @@
 #   HUBOT_SEMAPHOREAPP_DEFAULT_BRANCH
 #     Your default semaphore branch or `master`.
 #
+#   HUBOT_SEMAPHOREAPP_DEFAULT_ROLE
+#     Your default semaphore role or `deploy`.
+#
 # Commands
 #   hubot deploy project/branch to server - deploys project/branch to server
 #   hubot deploy project to server - deploys project/master to server
@@ -25,12 +28,14 @@
 #
 # Author:
 #   ben
+#   arnoldcano
 
 SemaphoreApp = require './lib/app'
 
 module.exports = (robot) ->
   default_branch = process.env.HUBOT_SEMAPHOREAPP_DEFAULT_BRANCH || 'master'
   default_server = process.env.HUBOT_SEMAPHOREAPP_DEFAULT_SERVER || 'prod'
+  default_role = process.env.HUBOT_SEMAPHOREAPP_DEFAULT_ROLE || 'deploy'
 
   unless process.env.HUBOT_SEMAPHOREAPP_DEPLOY?
     console.log 'Semaphore deploy commands disabled; export HUBOT_SEMAPHOREAPP_DEPLOY to turn them on'
@@ -39,13 +44,13 @@ module.exports = (robot) ->
   robot.respond /deploy (.*)/, (msg) =>
     unless process.env.HUBOT_SEMAPHOREAPP_AUTH_TOKEN?
       return msg.reply "I need HUBOT_SEMAPHOREAPP_AUTH_TOKEN for this to work."
-    unless robot.auth.hasRole(msg.envelope.user, 'deploy')
-      return msg.reply "Can't find role 'deploy' for user"
+    unless robot.auth.hasRole(msg.envelope.user, default_role)
+      return msg.reply "Can't find role #{default_role} for user"
 
     command = msg.match[1]
     aSlashBToC = command.match /(.*?)\/(.*)\s+to\s+(.*)/ # project/branch to server
-    aToB = command.match /(.*)\s+to\s+(.*)/ # project to server
-    aSlashB = command.match /(.*?)\/(.*)/ # project/branch
+    aToB = command.match /(.*)\s+to\s+(.*)/              # project to server
+    aSlashB = command.match /(.*?)\/(.*)/                # project/branch
 
     [project, branch, server] = switch
       when aSlashBToC? then aSlashBToC[1..3]
@@ -66,8 +71,6 @@ module.exports.deploy = (msg, project, branch, server) ->
     [branch_obj] =  (b for b in project_obj.branches when b.branch_name == branch)
     unless branch_obj
       return msg.reply "Can't find branch #{project}/#{branch}"
-    # unless branch_obj.result == 'passed'
-    #   return msg.reply "#{project}/#{branch} – last build is #{branch_obj.result}. Aborting deploy."
     [server_obj] = (s for s in project_obj.servers when s.server_name == server)
     unless server_obj
       return msg.reply "Can't find server #{server} for project #{project}"
