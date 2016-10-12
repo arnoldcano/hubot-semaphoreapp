@@ -21,13 +21,13 @@
 #     Your default semaphore role or `deploy`.
 #
 # Commands
-#   hubot rollback project/branch by builds to server - rolls back project/branch by builds to server
+#   hubot rollback project/branch by n_builds to server - rolls back project/branch by n_builds to server
 #   hubot rollback project/branch to server - rolls back project/branch by 1 to server
-#   hubot rollback project by builds to server - rolls back project/master by builds to server
+#   hubot rollback project by n_builds to server - rolls back project/master by n_builds to server
 #   hubot rollback project to server - rolls back project/master by 1 to server
-#   hubot rollback project/branch by builds - rolls back project/branch by builds to 'prod'
+#   hubot rollback project/branch by n_builds - rolls back project/branch by n_builds to 'prod'
 #   hubot rollback project/branch - rolls back project/branch by 1 to 'prod'
-#   hubot rollback project by builds - rolls back project/master by builds to 'prod'
+#   hubot rollback project by n_builds - rolls back project/master by n_builds to 'prod'
 #   hubot rollback project - rolls back project/master by 1 to 'prod'
 #
 # Author:
@@ -39,7 +39,7 @@ module.exports = (robot) ->
   default_branch = process.env.HUBOT_SEMAPHOREAPP_DEFAULT_BRANCH || 'master'
   default_server = process.env.HUBOT_SEMAPHOREAPP_DEFAULT_SERVER || 'prod'
   default_role = process.env.HUBOT_SEMAPHOREAPP_DEFAULT_ROLE || 'deploy'
-  default_builds = 1
+  default_n_builds = 1
 
   unless process.env.HUBOT_SEMAPHOREAPP_DEPLOY?
     console.log 'Semaphore deploy commands disabled; export HUBOT_SEMAPHOREAPP_DEPLOY to turn them on'
@@ -52,27 +52,27 @@ module.exports = (robot) ->
       return msg.reply "Can't find role #{default_role} for user"
 
     command = msg.match[1]
-    aSlashBByCToD = command.match /(.*?)\/(.*)\s+by\s+(\d)\s+to\s+(.*)/ # project/branch by builds to server
+    aSlashBByCToD = command.match /(.*?)\/(.*)\s+by\s+(\d)\s+to\s+(.*)/ # project/branch by n_builds to server
     aSlashBToC = command.match /(.*?)\/(.*)\s+to\s+(.*)/                # project/branch to server
-    aByBToC = command.match /(.*)\s+by\s+(\d)\s+to\s+(.*)/              # project by builds to server
+    aByBToC = command.match /(.*)\s+by\s+(\d)\s+to\s+(.*)/              # project by n_builds to server
     aToB = command.match /(.*)\s+to\s+(.*)/                             # project to server
-    aSlashBByC = command.match /(.*?)\/(.*)\s+by\s+(\d)/                # project/branch by builds
+    aSlashBByC = command.match /(.*?)\/(.*)\s+by\s+(\d)/                # project/branch by n_builds
     aSlashB = command.match /(.*?)\/(.*)/                               # project/branch
 
-    [project, branch, builds, server] = switch
+    [project, branch, n_builds, server] = switch
       when aSlashBByCToD? then aSlashBByCToD[1..4]
-      when aSlashBToC? then [aSlashBToC[1], aSlashBToC[2], default_builds, aSlashBToC[3]]
+      when aSlashBToC? then [aSlashBToC[1], aSlashBToC[2], default_n_builds, aSlashBToC[3]]
       when aByBToC? then [aByBToC[1], default_branch, aByBToC[2], aByBToC[3]]
-      when aToB? then [aToB[1], default_branch, default_builds, aToB[2]]
+      when aToB? then [aToB[1], default_branch, default_n_builds, aToB[2]]
       when aSlashBByC? then [aSlashBByC[1], aSlashBByC[2], aSlashBByC[3], default_server]
-      when aSlashB? then [aSlashB[1], aSlashB[2], default_builds, default_server]
-      else [command, default_branch, default_builds, default_server]
+      when aSlashB? then [aSlashB[1], aSlashB[2], default_n_builds, default_server]
+      else [command, default_branch, default_n_builds, default_server]
 
-    robot.logger.debug "SEMAPHOREAPP rollback #{project}/#{branch} by #{builds} to #{server}"
+    robot.logger.debug "SEMAPHOREAPP rollback #{project}/#{branch} by #{n_builds} to #{server}"
 
-    module.exports.rollback msg, project, branch, builds, server
+    module.exports.rollback msg, project, branch, n_builds, server
 
-module.exports.rollback = (msg, project, branch, builds, server) ->
+module.exports.rollback = (msg, project, branch, n_builds, server) ->
   app = new SemaphoreApp(msg)
   app.getProjects (allProjects) ->
     [project_obj] = (p for p in allProjects when p.name == project)
@@ -89,5 +89,5 @@ module.exports.rollback = (msg, project, branch, builds, server) ->
       app.getServers project_obj.hash_id, (allServers) ->
         [branch_id] = (b.id for b in allBranches when b.name == branch)
         [server_id] = (s.id for s in allServers when s.name == server)
-        app.createDeploy project_obj.hash_id, branch_id, (branch_obj.build_number - builds), server_id, (json) ->
-          msg.send "Rolling back #{project}/#{branch} by #{builds} to #{server} \n  #{json.html_url}"
+        app.createDeploy project_obj.hash_id, branch_id, (branch_obj.build_number - n_builds), server_id, (json) ->
+          msg.send "Rolling back #{project}/#{branch} by #{n_builds} to #{server} \n  #{json.html_url}"
